@@ -1,0 +1,91 @@
+{
+  "research_dir": "data",
+  "output_dir": "results",
+  "end_year": 2024,
+  "trend_start": 1990,
+  "baseline_years": [
+    2010,
+    2014
+  ],
+  "comparison_years": [
+    2020,
+    2024
+  ],
+  "fixed_support_start": 2000,
+  "batch_rows": 1000000,
+  "metric_batch_papers": 250000,
+  "threads": 8,
+  "max_rss_gib": 384,
+  "physical_memory_fraction": 0.8,
+  "lookup": "pandas",
+  "field_mode": "multilabel",
+  "field_weighting": "equal_distinct",
+  "field_ids": [
+    121332964,
+    127313418,
+    127413603,
+    138885662,
+    142362112,
+    144024400,
+    144133560,
+    15744967,
+    162324750,
+    17744445,
+    185592680,
+    192562407,
+    205649164,
+    33923547,
+    39432304,
+    41008148,
+    71924100,
+    86803240,
+    95457728
+  ],
+  "field_labels": {},
+  "field_columns": {
+    "paper": "auto",
+    "field": "auto",
+    "weight": "auto",
+    "level": "auto"
+  },
+  "field_level": 0,
+  "country_columns": {
+    "paper": "paper_id",
+    "country": "entity_id",
+    "weight": "weight"
+  },
+  "edge_columns": {
+    "citing": "citing_id",
+    "cited": "cited_id"
+  },
+  "plot_sample_n": 250000,
+  "r_export_fraction": 1.0,
+  "min_cell_mass": 25,
+  "min_surface_n": 100,
+  "min_null_pool": 5,
+  "community_resolutions": [
+    0.5,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "community_repeats": 10,
+  "seed": 20261031,
+  "paths": {
+    "papers": "core/papers.parquet",
+    "countries": "extended/country_members.parquet",
+    "fields": "stage/fields/data.parquet",
+    "edges": "stage/edges/data.parquet",
+    "semantic": "metrics/embedding_paper.parquet",
+    "ai": "extended/AI_papers.parquet"
+  },
+  "joint_semantic": {
+    "enabled": false,
+    "index_parquet": "",
+    "id_column": "paper_id",
+    "row_column": "row",
+    "matrix_npy": "",
+    "max_papers": 50000,
+    "max_work_gib": 24
+  }
+}

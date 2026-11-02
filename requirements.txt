@@ -1,0 +1,14 @@
+numpy>=1.26,<2.3
+pandas>=2.2,<3
+pyarrow>=17,<28
+scipy>=1.12,<2
+numba>=0.61.2,<0.62
+matplotlib>=3.8,<4
+igraph>=0.11.8,<0.12
+leidenalg>=0.10.2,<0.11
+psutil>=6
+threadpoolctl>=3.5
+ipykernel>=6.29
+nbformat>=5.10
+nbclient>=0.10
+pytest>=8
