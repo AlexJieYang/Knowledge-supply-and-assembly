@@ -25,15 +25,15 @@ def require(frame,columns,source):
 class Context:
     def __init__(self,config='config.json',results_dir=None,output_dir=None,
                  sample_file=None,min_exposure=None,top_countries=24,synthetic=False):
-        self.config_path=Path(config).resolve()
+        self.config_path=Path(config).expanduser().resolve()
         self.c=json.loads(self.config_path.read_text(encoding='utf-8-sig'))
-        result=Path(results_dir) if results_dir else Path(self.c.get('output_dir','results'))
+        result=Path(results_dir or self.c.get('output_dir','results')).expanduser()
         self.results=(result if result.is_absolute() else self.config_path.parent/result).resolve()
-        self.out=Path(output_dir).resolve() if output_dir else self.results/'si'
+        self.out=Path(output_dir).expanduser().resolve() if output_dir else self.results/'si'
         if self.out==self.results:raise ValueError('SI output_dir must be a separate directory, not the main results root.')
         self.d={k:self.out/k for k in ('tables','figures','source_data','logs')}
         for p in self.d.values():p.mkdir(parents=True,exist_ok=True)
-        self.sample_path=Path(sample_file).resolve() if sample_file else self.results/'data/plot_sample.parquet'
+        self.sample_path=Path(sample_file).expanduser().resolve() if sample_file else self.results/'data/plot_sample.parquet'
         self.sample_scope=('User-specified sample; inclusion design must be verified.' if sample_file else
                            'Stage-05 uniform deterministic bottom-k hash sample of P*; not a stratified sample.')
         self.minimum=float(min_exposure if min_exposure is not None else self.c.get('min_cell_mass',25))
@@ -174,7 +174,7 @@ class Context:
               'code_sha256':self.code_hashes(),'main_pipeline_status':status,
               'study_config':{k:self.c.get(k) for k in ['trend_start','end_year','field_mode','field_weighting','field_level','field_ids','baseline_years','comparison_years','fixed_support_start','min_cell_mass','min_null_pool','seed','r_export_fraction']},
               'tables':list(self.inventory.values()),'figures':self.figures,'events':self.events,
-              'interpretation':'Descriptive accounting and conditional association; no causal identification; no new degree-preserving null or semantic embeddings are inferred.'}
+              'interpretation':'Descriptive accounting and conditional association based on the supplied main-analysis results.'}
         (self.out/'SI_manifest.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
         pd.DataFrame(self.events).to_csv(self.out/'SI_run_status.csv',index=False,encoding='utf-8-sig')
         pd.DataFrame(self.inventory.values()).to_csv(self.out/'SI_table_inventory.csv',index=False,encoding='utf-8-sig')

@@ -423,7 +423,7 @@ def figure5(db):
     for k,(label,v) in enumerate(zip(a.component,value)):
         ax.bar(k,v,bottom=cum,color=TEAL if v>=0 else ORANGE,width=.65);ax.plot([k-.32,k+.32],[cum+v,cum+v],color=NAVY,lw=.5);cum+=v
     ax.axhline(0,color=GRAY,lw=.5);ax.set_xticks(np.arange(len(a)),[x.capitalize() for x in a.component],rotation=25,ha='right');ax.set_ylabel('Change in mean q');ax.text(.03,.98,f'Total: {cum:+.4f}',transform=ax.transAxes,va='top',fontsize=6.5)
-    db.use(name,'a','change_accounting','2010-2014 vs 2020-2024; exact symmetric decomposition, not causal attribution')
+    db.use(name,'a','change_accounting','2010-2014 vs 2020-2024; exact symmetric decomposition')
     ax=axes['B'];title(ax,'b','Source cohorts and bridge intensity');t=db.read('cohort_intensity')
     table=t.pivot(index='citing_period',columns='source_cohort',values='intensity');expo=t.pivot(index='citing_period',columns='source_cohort',values='E')
     table=table.where(expo>=db.c['min_cell_mass']);im=ax.imshow(table,aspect='auto',origin='lower',cmap='viridis',vmin=0,vmax=1)

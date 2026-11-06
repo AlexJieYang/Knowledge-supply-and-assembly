@@ -4,7 +4,7 @@ import pandas as pd
 import tempfile
 import json
 from pathlib import Path
-from si_support.analysis import histogram_distribution,change_by_unit,node_participation,partition_similarity,audit_frames
+from si_support.analysis import histogram_distribution,change_by_unit,node_participation,partition_similarity,diagnostic_frames
 from si_support.core import divide,Context
 
 
@@ -72,7 +72,7 @@ class ScientificAccountingTests(unittest.TestCase):
             other=Context(root/'config.json',min_exposure=100)
             with self.assertRaises(ValueError):other.validate_table_reuse()
 
-    def test_audit_batches_preserve_core_and_eligible_denominators(self):
+    def test_population_diagnostics_batches_preserve_core_and_eligible_denominators(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);(root/'results/tables').mkdir(parents=True)
             (root/'config.json').write_text(json.dumps({'output_dir':'results'}))
@@ -83,11 +83,11 @@ class ScientificAccountingTests(unittest.TestCase):
               'eligible':[True,False,True,False,True,False],'known_fields':[1,0,2,0,1,0],
               'known_countries':[1,0,2,0,1,1],'reference_coverage':[.5,0,.9,0,1,0],'joint_cross':[.2,np.nan,.3,np.nan,.4,np.nan]})
             kinds=np.array([0,2,1,2,1,2]);ids=a.paper_id.to_numpy()
-            audit_frames(ctx,[a.iloc[:3],a.iloc[3:]],kinds,ids,expected_rows=6)
-            labels=ctx.table('S33_full_label_audit');self.assertEqual(labels[labels.metric=='known_fields'].n.sum(),5)
-            coverage=ctx.table('S34_full_coverage_audit');self.assertEqual(coverage['count'].sum(),3)
-            types=ctx.table('S35_source_type_audit');self.assertAlmostEqual(types.loc[types.kind==1,'mean_q'].iloc[0],.35)
-            with self.assertRaises(ValueError):audit_frames(ctx,[a],kinds,ids[::-1],expected_rows=6)
+            diagnostic_frames(ctx,[a.iloc[:3],a.iloc[3:]],kinds,ids,expected_rows=6)
+            labels=ctx.table('S33_full_label_diagnostics');self.assertEqual(labels[labels.metric=='known_fields'].n.sum(),5)
+            coverage=ctx.table('S34_full_coverage_diagnostics');self.assertEqual(coverage['count'].sum(),3)
+            types=ctx.table('S35_source_type_diagnostics');self.assertAlmostEqual(types.loc[types.kind==1,'mean_q'].iloc[0],.35)
+            with self.assertRaises(ValueError):diagnostic_frames(ctx,[a],kinds,ids[::-1],expected_rows=6)
 
 
 if __name__=='__main__':unittest.main()

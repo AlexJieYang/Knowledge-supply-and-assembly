@@ -139,9 +139,9 @@ source("R/analysis.R")
 models <- run_associations()
 ```
 
-Alternatively, select **R - Global Knowledge Assembly** for notebook 06 after running `setup_R.R`. The R analysis reads the repository's `config.json` and the Python output from stage 05.
+Alternatively, select **R - Global Knowledge Assembly** for notebook 06 after running `setup_R.R`, or run `Rscript run_R.R --config config.local.json`. Python and R accept `GKA_CONFIG` as the default configuration selector. With no selector, they read the repository's `config.json`. Relative input and output directories are resolved against the selected configuration file's directory. Use the same configuration for the Python and R stages.
 
-The paper models include field-by-year and publication-source fixed effects, with publication-source-clustered standard errors. The country-field-year model uses assembler-exposure weights, country-field and field-year fixed effects, and covariance clustered by country and year. The original optional AI-profile branch remains available when valid input scores support it. See [STUDY_DESIGN.md](STUDY_DESIGN.md) for definitions and interpretation.
+The paper models include field-by-year and publication-source fixed effects, with publication-source-clustered standard errors. The country-field-year model uses assembler-exposure weights, country-field and field-year fixed effects, and covariance clustered by country and year. The optional AI-profile branch uses valid input scores. See [STUDY_DESIGN.md](STUDY_DESIGN.md) for definitions and interpretation.
 
 ## Supplementary analysis
 
@@ -211,4 +211,4 @@ When citing the accompanying study, use its final published bibliographic record
 python tools/check_sources.py
 ```
 
-GitHub Actions runs the same Python syntax, JSON and notebook structure checks. It also requires notebooks to have no saved execution output or execution metadata. R cells are checked as notebook source text.
+GitHub Actions checks Python syntax, JSON and notebook structure, and parses R scripts and R notebook cells with R 4.4. Notebooks contain no saved execution output or execution metadata. Source checks parse code without evaluating analysis stages.

@@ -109,7 +109,7 @@ def references(ctx):
     z['q0']=divide(z.H0,z.N_model);z['q_context']=divide(z.H_context,z.N)
     z['gap']=z.q_model-z.q0;z['observed_to_reference']=divide(z.q_model,z.q0)
     z['model_coverage']=divide(z.N_model,z.N)
-    ctx.write('S05_reference_comparison',z,'Observed and label-mixing reference contexts','H_model and H0 share the identical subset. H_context is a distinct descriptive reference; q0 is not an exogenous opportunity set.')
+    ctx.write('S05_reference_comparison',z,'Observed and label-mixing reference contexts','H_model and H0 share the identical subset. H_context uses full-stratum means; q0 follows the configured label-mixing comparison.')
 
 
 def field_metrics(ctx):
@@ -120,7 +120,7 @@ def field_metrics(ctx):
     w=z.groupby(['period','field','metric'],as_index=False)[['mass','sum','sum_sq']].sum()
     w['mean']=divide(w['sum'],w.mass);w['sd_descriptive']=np.sqrt(np.maximum(0,divide(w.sum_sq,w.mass)-w['mean']**2))
     w['field_label']=w.field.map(ctx.field)
-    ctx.write('S07_field_period',w,'Field-specific period metrics','Ratio of summed metric totals to summed fractional mass; SD is descriptive, not a standard error.')
+    ctx.write('S07_field_period',w,'Field-specific period metrics','Ratio of summed metric totals to summed fractional mass, with descriptive standard deviations.')
 
 
 def distributions(ctx):
@@ -158,12 +158,12 @@ def roles(ctx):
             a=t[[x,y]].replace([np.inf,-np.inf],np.nan).dropna()
             rho=spearmanr(a[x],a[y]).statistic if len(a)>2 and a[x].nunique()>1 and a[y].nunique()>1 else np.nan
             corr.append(dict(period=period,field=field,field_label=ctx.field[field],x=x,y=y,n_cells=len(a),spearman_rho=rho))
-    ctx.write('S12_role_correlations',pd.DataFrame(corr),'Within-field role correlations','Unweighted country-field rank correlations after the same minimum in both roles; not causal tests.')
+    ctx.write('S12_role_correlations',pd.DataFrame(corr),'Within-field role correlations','Unweighted country-field rank correlations after applying the same exposure minimum in both roles.')
 
 
 def concentration(ctx):
     z=ctx.raw('role_concentration',['scope','period','role','quantity','n_units','Gini','top5_share','top10pct_share'])
-    ctx.write('S13_concentration',z,'Role and exposure concentration','Uses the original fixed union of units, including period-specific zeros; top-five units differ from top-five percent.')
+    ctx.write('S13_concentration',z,'Role and exposure concentration','Uses a fixed union of units, including period-specific zeros; reports top-five-unit and top-five-percent shares separately.')
 
 
 def communities(ctx):
@@ -177,7 +177,7 @@ def communities(ctx):
         a=z.set_index('country').community.reindex(np.arange(n),fill_value=-1).to_numpy(int)
         best[(int(row.period),str(row.layer),float(row.gamma))]=a
         best_rows.extend(dict(period=row.period,layer=row.layer,gamma=row.gamma,country=i,community=int(a[i])) for i in range(n))
-    ctx.write('S15_selected_communities',pd.DataFrame(best_rows),'Selected communities at every resolution','Best repeats are taken from the original optimisation table; Leiden is not rerun.')
+    ctx.write('S15_selected_communities',pd.DataFrame(best_rows),'Selected communities at every resolution','Best repeats are read from the stored optimisation table.')
     try:net,periods=ctx.networks();lookup={int(p):i for i,p in enumerate(periods)}
     except MissingInput:net=None;lookup={}
     rows=[]
@@ -212,7 +212,7 @@ def network_diagnostics(ctx):
             edges=pd.DataFrame({'source':ii,'target':jj,'F':F[ii,jj],'H':H[ii,jj],'H_over_F':divide(H[ii,jj],F[ii,jj])})
     ctx.write('S17_network_mass',pd.DataFrame(summary),'Domestic and international F/H mass','Domestic fraction is computed from diagonal mass; C symmetric adjacency is not mixed into these fractions.')
     ctx.write('S18_network_nodes',pd.DataFrame(nodes),'Directed network node diagnostics','Source-to-receiver orientation; out describes source spread, in describes received-source diversity. Participation uses a frozen baseline F partition and non-diagonal weights.')
-    if isinstance(edges,pd.DataFrame):ctx.write('S19_network_edges_current',edges,'Recent international edge weights','Only F>0 off-diagonal edges; H/F is an exposure-weighted context intensity, not an independent network or causal effect.')
+    if isinstance(edges,pd.DataFrame):ctx.write('S19_network_edges_current',edges,'Recent international edge weights','Off-diagonal edges with F>0; H/F records exposure-weighted context intensity.')
 
 
 def composition(ctx):
@@ -234,25 +234,25 @@ def cohorts(ctx):
     z['cohort']=np.where(z.cited_year<1950,1945,z.cited_year.astype(int)//5*5)
     a=z.groupby(['period','cohort'],as_index=False)[['E','B']].sum()
     a['intensity']=divide(a.B,a.E);a['exposure_share']=divide(a.E,a.groupby('period').E.transform('sum'))
-    ctx.write('S22_source_cohorts',a,'Source cohorts and observed credit','All source ages retained; pre-1950 pooled only in the display. B/E is not a raw citation count.')
+    ctx.write('S22_source_cohorts',a,'Source cohorts and observed credit','All source ages are retained, with pre-1950 cohorts pooled for display. B/E records contextual credit per unit exposure.')
     labels=['0','1-2','3-5','6-10','11-20','21-40','41+']
     z['age_band']=pd.cut(z.age,[-.5,.5,2.5,5.5,10.5,20.5,40.5,np.inf],labels=labels)
     a=z.groupby(['period','age_band'],observed=True,as_index=False)[['E','B']].sum()
     a['intensity']=divide(a.B,a.E);a['exposure_share']=divide(a.E,a.groupby('period').E.transform('sum'))
-    ctx.write('S23_reference_age',a,'Reference-age structure','Age is citing year minus cited year for each original year pair, not a difference of five-year midpoints.')
+    ctx.write('S23_reference_age',a,'Reference-age structure','Age is citing year minus cited year for each paper-year pair.')
 
 
 def surfaces(ctx):
     z=ctx.raw('response_surface',['team_bin','reference_bin','team_label','reference_label','n','mean'])
     z['displayed']=z.n>=int(ctx.c.get('min_surface_n',100))
-    ctx.write('S24_response_surface',z,'Observed bin support and means','Full recent P* counts; ordinal bins with unequal widths. No continuous or causal response surface is fitted.')
+    ctx.write('S24_response_surface',z,'Observed bin support and means','Full recent P* counts and observed means in ordinal bins with unequal widths.')
 
 
 def regression(ctx):
     z=ctx.raw('coefficients',['model','term','estimate','std_error','conf_low','conf_high','n'],folder='r')
     scope=ctx.raw('model_scope',folder='r')
     z['CI_crosses_zero']=(z.conf_low<=0)&(z.conf_high>=0)
-    ctx.write('S25_regression_coefficients',z,'Reported conditional associations','Imported original estimates and covariance-specific confidence intervals; models are not re-estimated.')
+    ctx.write('S25_regression_coefficients',z,'Reported conditional associations','Imported model estimates and covariance-specific confidence intervals.')
     ctx.write('S26_regression_scope',scope,'Regression populations, weights and covariance','Model units and fixed effects differ; AI-classified subsets and aggregate cells are separate estimands.')
 
 
@@ -262,7 +262,7 @@ def sample_diagnostics(ctx):
         if metric not in s:continue
         counts=s[metric].dropna().value_counts().sort_index()
         rows.extend(dict(metric=metric,value=float(v),n=int(n),fraction=n/len(s),n_sample=len(s)) for v,n in counts.items())
-    ctx.write('S27_sample_distributions',pd.DataFrame(rows),'Observed sample metadata distributions',ctx.sample_scope+' All fractions use the entire selected sample; missing values are not silently renormalised.')
+    ctx.write('S27_sample_distributions',pd.DataFrame(rows),'Observed sample metadata distributions',ctx.sample_scope+' All fractions use the entire selected sample as their denominator.')
     rows=[]
     for year,t in s.groupby('year'):
         row={'year':year,'n_sample':len(t)}
@@ -276,12 +276,12 @@ def sample_diagnostics(ctx):
         annual=annual.merge(pop[['year','eligible']],on='year',how='left',validate='one_to_one')
         annual['sample_fraction']=divide(annual.n_sample,annual.eligible)
     except MissingInput:pass
-    ctx.write('S28_sample_year',annual,'Plot-sample support by year',ctx.sample_scope+' Sample support is not the full-data inclusion probability for metadata-missing papers.')
+    ctx.write('S28_sample_year',annual,'Plot-sample support by year',ctx.sample_scope+' Annual counts describe the selected plotting sample.')
     valid=s.reference_coverage.between(0,1)&s.joint_cross.notna()
     z=s.loc[valid].copy();z['coverage_bin']=pd.cut(z.reference_coverage,np.linspace(0,1,11),include_lowest=True,labels=False)
     out=z.groupby('coverage_bin',as_index=False).agg(n=('joint_cross','size'),mean_q=('joint_cross','mean'),mean_coverage=('reference_coverage','mean'),mean_joint_refs=('joint_refs','mean'))
     out['lower']=out.coverage_bin/10;out['upper']=(out.coverage_bin+1)/10
-    ctx.write('S29_sample_coverage',out,'Sample co-use and observed reference coverage',ctx.sample_scope+' Descriptive bins, not a missingness correction or causal response.')
+    ctx.write('S29_sample_coverage',out,'Sample co-use and observed reference coverage',ctx.sample_scope+' Descriptive summaries use observed reference-coverage bins.')
 
 
 def semantic(ctx):
@@ -291,39 +291,39 @@ def semantic(ctx):
     if len(joint):
         z=joint[np.isfinite(joint.q_same_refs)&np.isfinite(joint.cosine_pair_distance)].copy()
         z['scope']='same_reference_set'
-        ctx.write('S30_joint_semantic',z,'Exact same-reference semantic check','Uses previously computed country/Fields/valid-embedding references. No embedding vectors are fabricated or recomputed here.')
+        ctx.write('S30_joint_semantic',z,'Exact same-reference semantic check','Uses computed country, Fields and valid-embedding information on the same references.')
         rows.append(dict(scope='same_reference_set',n=len(z),rho=spearmanr(z.q_same_refs,z.cosine_pair_distance).statistic if len(z)>2 and z.q_same_refs.nunique()>1 and z.cosine_pair_distance.nunique()>1 else np.nan))
     try:s=ctx.sample()
     except MissingInput:s=pd.DataFrame()
     if {'semantic_existing','semantic_coverage'}<=set(s):
         z=s[s.semantic_coverage.ge(.5)&np.isfinite(s.semantic_existing)&np.isfinite(s.joint_cross)].copy()
         if len(z):
-            ctx.write('S31_broader_semantic',z,'Broader-reference semantic association',ctx.sample_scope+' Existing semantic distance uses a different, broader reference set; not same-reference construct validation.')
+            ctx.write('S31_broader_semantic',z,'Broader-reference semantic association',ctx.sample_scope+' Existing semantic distance uses its documented broader reference set.')
             rows.append(dict(scope='different_broader_reference_set',n=len(z),rho=spearmanr(z.joint_cross,z.semantic_existing).statistic if len(z)>2 and z.joint_cross.nunique()>1 and z.semantic_existing.nunique()>1 else np.nan))
     if not rows:raise MissingInput('No valid same-reference or broader-reference semantic measurements.')
-    ctx.write('S32_semantic_summary',pd.DataFrame(rows),'Semantic scope and rank associations','Rank correlations are descriptive, unweighted and not causal. The two scopes cannot be pooled.')
+    ctx.write('S32_semantic_summary',pd.DataFrame(rows),'Semantic scope and rank associations','Unweighted Spearman rank correlations are reported separately for each reference scope.')
 
 
-def deep_audit(ctx,batch_rows=250000):
-    """Optional streaming audit of existing paper outputs; no original graph rebuild."""
+def population_diagnostics(ctx,batch_rows=250000):
+    """Optional streaming population diagnostics of existing paper outputs."""
     try:import pyarrow.parquet as pq
-    except ImportError as exc:raise MissingInput('pyarrow is required for --deep-audit.') from exc
+    except ImportError as exc:raise MissingInput('pyarrow is required for streaming population diagnostics.') from exc
     path=ctx.results/'data/assembly_papers.parquet'
     if not path.is_file():raise MissingInput(str(path))
     ctx.track(path);pf=pq.ParquetFile(path)
     cols=['paper_id','year','eligible','known_fields','known_countries','reference_coverage','joint_cross']
-    if not set(cols)<=set(pf.schema_arrow.names):raise ValueError('Deep audit paper schema differs from the expected assembly output.')
+    if not set(cols)<=set(pf.schema_arrow.names):raise ValueError('Population diagnostics require the expected assembly-paper schema.')
     kinds=ids=None;kind_path=ctx.results/'cache/kind.npy';id_path=ctx.results/'cache/paper_id.npy'
     if kind_path.is_file() and id_path.is_file():
         kinds=np.load(kind_path,mmap_mode='r',allow_pickle=False);ids=np.load(id_path,mmap_mode='r',allow_pickle=False)
         if len(kinds)!=pf.metadata.num_rows or len(ids)!=len(kinds):raise ValueError('Kind/ID cache length does not match assembly rows.')
         ctx.track(kind_path);ctx.track(id_path)
     frames=(b.to_pandas() for b in pf.iter_batches(columns=cols,batch_size=int(batch_rows),use_threads=False))
-    return audit_frames(ctx,frames,kinds,ids,expected_rows=pf.metadata.num_rows)
+    return diagnostic_frames(ctx,frames,kinds,ids,expected_rows=pf.metadata.num_rows)
 
 
-def audit_frames(ctx,frames,kinds=None,ids=None,expected_rows=None):
-    """Bounded-batch audit accounting, independently testable without Parquet I/O."""
+def diagnostic_frames(ctx,frames,kinds=None,ids=None,expected_rows=None):
+    """Summarize population membership and coverage in bounded batches."""
     from collections import Counter
     if kinds is not None and (ids is None or len(kinds)!=len(ids)):
         raise ValueError('Source kinds require an equally long exact-ID index.')
@@ -339,25 +339,25 @@ def audit_frames(ctx,frames,kinds=None,ids=None,expected_rows=None):
         z=a[a.eligible].copy()
         if ((~z.reference_coverage.between(0,1)).any() or (~z.joint_cross.between(0,1)).any()
             or (z.known_fields<1).any() or (z.known_countries<1).any()):
-            raise ValueError('Eligible paper has missing or invalid coverage/co-use in the audit.')
+            raise ValueError('Eligible paper must have valid coverage and co-use values.')
         z['coverage_bin']=pd.cut(z.reference_coverage,np.linspace(0,1,11),include_lowest=True,labels=False)
         x=z.dropna(subset=['coverage_bin','joint_cross']).groupby(['year','coverage_bin']).joint_cross.agg(['count','sum']).reset_index();coverage.append(x)
         if kinds is not None:types.append(z.groupby(['year','kind']).joint_cross.agg(['count','sum']).reset_index())
-        if number%20==0:print(f'[deep audit] scanned {offset:,} existing paper rows',flush=True)
-    if expected_rows is not None and offset!=expected_rows:raise ValueError('Deep-audit row count changed during the scan.')
+        if number%20==0:print(f'[population diagnostics] scanned {offset:,} existing paper rows',flush=True)
+    if expected_rows is not None and offset!=expected_rows:raise ValueError('Population row count changed during the scan.')
     labels=pd.DataFrame([dict(year=y,metric=m,value=v,n=n) for (y,m,v),n in counts.items()])
-    ctx.write('S33_full_label_audit',labels,'Full dated-core membership audit','All dated core papers in the configured analysis interval, including non-P* papers; not only the plot sample.')
+    ctx.write('S33_full_label_diagnostics',labels,'Full dated-core membership diagnostics','All dated core papers in the configured analysis interval, including non-P* papers.')
     cov=pd.concat(coverage,ignore_index=True).groupby(['year','coverage_bin'],as_index=False)[['count','sum']].sum()
     cov['mean_q']=divide(cov['sum'],cov['count'])
     cov['fraction_within_year']=divide(cov['count'],cov.groupby('year')['count'].transform('sum'))
-    ctx.write('S34_full_coverage_audit',cov,'Full-P* reference-coverage audit','Observed core-reference classification coverage; excludes references outside the core graph.')
+    ctx.write('S34_full_coverage_diagnostics',cov,'Full-P* reference-coverage diagnostics','Classification coverage of observed core references.')
     if types:
         z=pd.concat(types,ignore_index=True).groupby(['year','kind'],as_index=False)[['count','sum']].sum()
         z['mean_q']=divide(z['sum'],z['count']);z['kind_label']=z.kind.map({0:'Journal',1:'Conference',2:'Unknown'})
         if z.kind_label.isna().any():raise ValueError('Unrecognised cached source type.')
         z['share']=divide(z['count'],z.groupby('year')['count'].transform('sum'))
-        ctx.write('S35_source_type_audit',z,'Full-P* source-type audit','Cached source kind is row-matched using exact paper IDs. Classification is the original pipeline source-type flag.')
-    else:ctx.event('tables','source_type_audit','skipped','kind.npy and paper_id.npy are both required for an aligned source-type audit.')
+        ctx.write('S35_source_type_diagnostics',z,'Full-P* source-type diagnostics','Cached source kind is row-matched using exact paper IDs and the pipeline source-type flag.')
+    else:ctx.event('tables','source_type_diagnostics','skipped','kind.npy and paper_id.npy are both required for aligned source-type diagnostics.')
 
 
 ANALYSES=[population,sensitivities,references,field_metrics,distributions,roles,concentration,

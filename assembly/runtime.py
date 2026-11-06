@@ -31,7 +31,7 @@ DEPENDENCIES = {'metadata':[], 'references':['metadata'], 'metrics':['references
                 'networks':['metrics'], 'descriptions':['networks'], 'figures':['descriptions']}
 
 def config(path=None):
-    p=Path(path or ROOT/'config.json').resolve()
+    p=Path(path or os.environ.get('GKA_CONFIG', ROOT/'config.json')).expanduser().resolve()
     c=json.loads(p.read_text(encoding='utf-8-sig'))
     c['_project_dir']=str(p.parent)
     # Optional embedding inputs follow the same configuration-relative convention.
@@ -65,8 +65,7 @@ def config(path=None):
     return c
 
 def dirs(c):
-    root=Path(c['output_dir'])
-    if not root.is_absolute(): root=Path(c['_project_dir'])/root
+    root=project_path(c,c['output_dir'])
     d={'root':root}
     for k in ('cache','data','tables','figures','r','status'):
         d[k]=root/k;d[k].mkdir(parents=True,exist_ok=True)

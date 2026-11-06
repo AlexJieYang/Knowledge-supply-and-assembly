@@ -77,7 +77,7 @@ The manifest records the generated tables, figures and plotting sources.
 - Distributions count the zero atom once. Approximate quantiles use upper-bin edges.
 - Incoming and outgoing participation follow source-to-receiver direction and use international links.
 - Temporal decomposition is an exact identity; country and field totals are alternative marginals.
-- Semantic measures retain their reference-scope labels. R intervals retain their original covariance definitions.
+- Semantic measures retain their reference-scope labels. R intervals retain their model-specific covariance definitions.
 
 See [STUDY_DESIGN.md](STUDY_DESIGN.md) for equations and [README.md](README.md) for data schemas and installation.
 

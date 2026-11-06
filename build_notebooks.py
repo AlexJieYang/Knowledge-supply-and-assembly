@@ -14,7 +14,7 @@ if PROJECT is None:
     raise FileNotFoundError('Open this notebook from the repository root or a subdirectory.')
 if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
-CONFIG_PATH = Path(os.environ.get('GKA_CONFIG', str(PROJECT / 'config.json'))).resolve()
+CONFIG_PATH = Path(os.environ.get('GKA_CONFIG', str(PROJECT / 'config.json'))).expanduser().resolve()
 settings = json.loads(CONFIG_PATH.read_text(encoding='utf-8-sig'))
 os.environ['ASSEMBLY_THREADS'] = str(settings['threads'])
 import bootstrap
@@ -114,14 +114,15 @@ def main():
     make('06_R_Conditional_Associations.ipynb', '06 Conditional association models in R',
          'Use the R project kernel after setup_R.R. Paper models include field-year and '
          'publication-source fixed effects. Aggregate models use assembler-exposure weights. '
-         'The original optional AI-profile specification remains available.', [
+         'The optional AI-profile specification is also available.', [
              ('code', "candidates <- c(Sys.getenv('GKA_PROJECT', unset = getwd()), getwd(), dirname(getwd()))\n"
               "valid <- vapply(candidates, function(p) file.exists(file.path(p, 'R', 'analysis.R')), logical(1))\n"
               "if (!any(valid)) stop('Set the working directory to the repository root.')\n"
               "PROJECT <- normalizePath(candidates[which(valid)[1]], winslash = '/', mustWork = TRUE)\n"
               "source(file.path(PROJECT, 'R', 'analysis.R'), encoding = 'UTF-8')\n"
-              "models <- run_associations(PROJECT)"),
-             ('markdown', 'results/r contains coefficients, intervals, model scope, tables, '
+              "CONFIG_PATH <- Sys.getenv('GKA_CONFIG', unset = file.path(PROJECT, 'config.json'))\n"
+              "models <- run_associations(PROJECT, config_path = CONFIG_PATH)"),
+             ('markdown', 'The configured output directory stores coefficients, intervals, model scope, tables, '
               'compact model objects and R session information. Main descriptive figures '
               'can be produced independently of the R stage.')], language='R')
 
@@ -134,7 +135,7 @@ def main():
               "for image in sorted(D['figures'].glob('Fig*.png')):\n"
               "    print(image.name)\n    display(Image(filename=str(image), width=1000))"),
              ('markdown', 'Unsupported cells remain masked and response surfaces connect observed '
-              'bin means. Use publication_redraw.py for the two revised figures based on the '
+              'bin means. Use publication_redraw.py for the two figures based on the '
               'included aggregate tables.')])
 
     si_header = """from pathlib import Path
@@ -148,7 +149,7 @@ if PROJECT is None:
 if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
 from si_support.core import Context, MissingInput
-CONFIG_PATH = Path(os.environ.get('GKA_CONFIG', str(PROJECT / 'config.json'))).resolve()
+CONFIG_PATH = Path(os.environ.get('GKA_CONFIG', str(PROJECT / 'config.json'))).expanduser().resolve()
 CTX = Context(config=CONFIG_PATH)
 print('Input:', CTX.results)
 print('SI output:', CTX.out)
@@ -162,11 +163,11 @@ print('SI output:', CTX.out)
              ('code', 'from si_support.analysis import build_tables\nbuild_tables(CTX)'),
              ('markdown', '## 2 Optional full-population diagnostics\n\nDisabled by default. '
               'Stream assembly_papers.parquet; source-type diagnostics require aligned kind/ID caches.'),
-             ('code', "RUN_DEEP_AUDIT = False\nif RUN_DEEP_AUDIT:\n"
-              "    from si_support.analysis import deep_audit\n    try:\n"
-              "        deep_audit(CTX, batch_rows=250000)\n    except MissingInput as exc:\n"
-              "        CTX.event('tables', 'deep_audit', 'skipped', exc)\n    else:\n"
-              "        CTX.event('tables', 'deep_audit', 'complete')"),
+             ('code', "RUN_POPULATION_DIAGNOSTICS = False\nif RUN_POPULATION_DIAGNOSTICS:\n"
+              "    from si_support.analysis import population_diagnostics\n    try:\n"
+              "        population_diagnostics(CTX, batch_rows=250000)\n    except MissingInput as exc:\n"
+              "        CTX.event('tables', 'population_diagnostics', 'skipped', exc)\n    else:\n"
+              "        CTX.event('tables', 'population_diagnostics', 'complete')"),
              ('markdown', '## 3 Render figures and the combined PDF\n\nExport figures, numerical '
               'source data, legends, the combined PDF and run status.'),
              ('code', 'from si_support.figures import render_all\nrender_all(CTX, book=True)'),

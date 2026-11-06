@@ -261,7 +261,7 @@ def build(c):
     csv(pd.DataFrame([{'table':'plot_sample','n':len(sample),'scope':'Bottom-k uniform deterministic hash sample from all P* papers; no stratification or oversampling.'},
         {'table':'r_papers','n':rw.n,'scope':f'All P* or uniform deterministic hash fraction {c["r_export_fraction"]}; complete cases selected per model in R.'},
         {'table':'full_core_rca','n':full_n,'scope':'Known country and Fields, 1990-2024; does not require >=2 usable references.'}]),d['tables']/'sample_scope.csv')
-    json_write({'research_type':'Descriptive and conditional association; no causal effects or experiments.',
+    json_write({'research_type':'Descriptive accounting and conditional association.',
         'main_population':'P*: dated 1990-2024 core papers, focal country/Fields known, at least two jointly known core references.',
         'unknown_date':'Retained in metadata and assembly tables but not dated comparisons.',
         'core_completion_bounds':'Conditional on P*, bounded only over the observed core induced reference list; not all references in the published article.',

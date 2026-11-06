@@ -1,11 +1,15 @@
-# Descriptive conditional associations only. No causal or experimental estimands.
-run_associations <- function(project_dir = getwd()) {
+# Conditional association models for papers and country-field outcomes.
+run_associations <- function(project_dir = getwd(), config_path = NULL) {
   needed <- c('arrow', 'data.table', 'fixest', 'jsonlite', 'tidyselect')
   absent <- needed[!vapply(needed, requireNamespace, logical(1), quietly = TRUE)]
   if (length(absent)) stop('Run setup_R.R first. Missing packages: ', paste(absent, collapse = ', '))
-  cfg <- jsonlite::fromJSON(file.path(project_dir, 'config.json'))
-  out <- cfg$output_dir
-  if (!grepl('^(/|[A-Za-z]:[/\\\\])', out)) out <- file.path(project_dir, out)
+  if (is.null(config_path)) {
+    config_path <- Sys.getenv('GKA_CONFIG', unset = file.path(project_dir, 'config.json'))
+  }
+  config_path <- normalizePath(path.expand(config_path), winslash = '/', mustWork = TRUE)
+  cfg <- jsonlite::fromJSON(config_path)
+  out <- path.expand(cfg$output_dir)
+  if (!grepl('^(/|[A-Za-z]:[/\\\\]|\\\\\\\\)', out)) out <- file.path(dirname(config_path), out)
   path <- file.path(out, 'data', 'r_papers.parquet')
   if (!file.exists(path)) stop('Run Python notebooks through 05 first: ', path)
   dir.create(file.path(out, 'r'), recursive = TRUE, showWarnings = FALSE)
@@ -52,7 +56,7 @@ run_associations <- function(project_dir = getwd()) {
     scope[[length(scope) + 1L]] <- data.frame(model = 'paper_AI_profile', unit = 'one classified citing paper',
        n_export = n_export, n_complete = nrow(ai), n_model = stats::nobs(fit),
        weights = 'uniform paper sampling weight', fixed_effects = 'primary Fields x year + source',
-       covariance = 'publication-source clustered', interpretation = 'optional AI-classified subset; no causal claim')
+       covariance = 'publication-source clustered', interpretation = 'optional AI-classified subset')
   }
   rm(ai, dat); gc()
   roles <- data.table::fread(file.path(out, 'tables', 'role_country_field_year.csv'), encoding = 'UTF-8')
@@ -66,7 +70,7 @@ run_associations <- function(project_dir = getwd()) {
        unit = 'country x Fields x year cell', n_export = nrow(roles), n_complete = nrow(roles),
        n_model = stats::nobs(fit), weights = 'observed assembly exposure E_asm',
        fixed_effects = 'country x Fields + Fields x year', covariance = 'country and year two-way clustered',
-       interpretation = 'aggregate conditional association; fractional cells overlap and network dependence is not fully modelled')
+       interpretation = 'aggregate conditional association with fractional country-field cells')
   }
   coef <- data.table::rbindlist(lapply(names(models), function(label) {
     fit <- models[[label]]; ct <- fixest::coeftable(fit); ci <- stats::confint(fit)

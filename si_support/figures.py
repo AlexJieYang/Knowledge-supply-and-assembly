@@ -188,7 +188,7 @@ def fig03(ctx,e):
     ax[2].set(xlabel='Citing year',ylabel='Mean joint co-use');key(ax[2])
     ax[3].bar(np.arange(len(end)),end.mean_q,color=[NAVY,ORANGE,TEAL][:len(end)])
     ax[3].set_xticks(np.arange(len(end)),[f'{int(a)}-{int(b)}' for a,b in zip(end.start_year,end.end_year)],rotation=25,ha='right');ax[3].set(ylabel='Paper-weighted mean q')
-    e.save(fig,3,'Definition_endpoints','Definitions, fixed support and endpoint windows','a, Annual means for the original sensitivity definitions. b, Retained paper fractions for each definition. c, Fixed baseline-weight curve on its explicitly eligible years. d, Period means using alternative observation windows. Curves can have different supports. A change in endpoint-window length is not a causal year effect. Retained fixed-support baseline mass and cell counts are supplied in the numerical table.',[('a_b',d),('c',fixed),('d',end)])
+    e.save(fig,3,'Definition_endpoints','Definitions, fixed support and endpoint windows','a, Annual means for each sensitivity definition. b, Retained paper fractions for each definition. c, Fixed baseline-weight curve on its eligible years. d, Period means using alternative observation windows. Each curve uses its stated definition and support. Retained fixed-support baseline mass and cell counts are supplied in the numerical table.',[('a_b',d),('c',fixed),('d',end)])
 
 
 def fig04(ctx,e):
@@ -239,7 +239,7 @@ def fig07(ctx,e):
     else:
         ax[3].scatter(t.E_src,t.E_asm,s=12,color=NAVY);ax[3].set(xscale='log',yscale='log',xlabel='Source exposure',ylabel='Assembler exposure')
     scope=('same-subset observed-minus-reference intensities' if {'model_gap_src','model_gap_asm'}<=set(t) else 'source and assembler exposures')
-    e.save(fig,7,'Country_roles','Country roles and their systematic differences',f'a, Source and assembler LQs for the {len(t)} countries selected by recent assembly exposure. b, Their paired role intensities; size denotes assembly exposure. c, Continuous role gaps for the six highest-exposure countries. d, {scope}. Country rates are ratios of summed credits to exposures. Historical source stocks and contemporary assembly are distinct accounts, not ability scores. Complete country data are exported.',[('a_b_d',t),('c',z[z.country.isin(countries[:6])])])
+    e.save(fig,7,'Country_roles','Country roles and their systematic differences',f'a, Source and assembler LQs for the {len(t)} countries selected by recent assembly exposure. b, Their paired role intensities; size denotes assembly exposure. c, Continuous role gaps for the six highest-exposure countries. d, {scope}. Country rates are ratios of summed credits to exposures. Historical source stocks and contemporary assembly are distinct accounts. Complete country data are exported.',[('a_b_d',t),('c',z[z.country.isin(countries[:6])])])
 
 
 def fig08(ctx,e):
@@ -273,7 +273,7 @@ def fig09(ctx,e):
                     a.plot(t.period+2,t[metric],label=role+' '+quantity,color=color,ls=ls)
             a.set(xlabel='Window midpoint',ylabel=scope.replace('_',' x ')+': '+metric.replace('_',' '),ylim=(0,1))
             if r==0 and j==0:key(a,fontsize=5.2)
-    e.save(fig,9,'Concentration','Exposure and credit concentration on fixed unit universes','Rows compare country and country-field units. Columns show Gini, top-five-unit share and top-ten-percent share. Solid curves represent bridge credit B and dashed curves exposure E; navy is source and teal assembler. All four distributions within a scope retain the same fixed union of active units and period-specific zeros. No standard errors are implied by deterministic concentration summaries.',[('a_f',z)])
+    e.save(fig,9,'Concentration','Exposure and credit concentration on fixed unit universes','Rows compare country and country-field units. Columns show Gini, top-five-unit share and top-ten-percent share. Solid curves represent bridge credit B and dashed curves exposure E; navy is source and teal assembler. All four distributions within a scope retain the same fixed union of active units and period-specific zeros. Curves show deterministic concentration summaries.',[('a_f',z)])
 
 
 def fig10(ctx,e):
@@ -286,7 +286,7 @@ def fig10(ctx,e):
             a.plot(t.gamma,t.mean_ami_to_best,'o-',ms=2,color=PALETTE[k%7],label=str(int(period)))
         a.set(xlabel='Resolution gamma',ylabel=layer+': AMI to best run',ylim=(0,1.02))
         if layer=='C':key(a,ncol=2,fontsize=5.2)
-    e.save(fig,10,'Community_resolution','Community agreement and optimisation stability across resolutions','a-c, Cross-layer AMI at every stored period and resolution, using original best repeats. d-f, Mean AMI of repeated optimisation to the best run for C, F and H. AMI equally weights common assigned countries. Non-diagonal F-exposure coverage, assigned-country counts and community counts are exported separately. Optimisation stability is not a confidence interval, and the most stable gamma is not selected retrospectively as the main result.',[('a_c',z),('d_f',s)])
+    e.save(fig,10,'Community_resolution','Community agreement and optimisation stability across resolutions','a-c, Cross-layer AMI at every stored period and resolution, using the stored best repeats. d-f, Mean AMI of repeated optimisation to the best run for C, F and H. AMI equally weights common assigned countries. Non-diagonal F-exposure coverage, assigned-country counts and community counts are exported separately. Repeated-run AMI describes optimisation stability; the primary resolution follows the main-analysis settings.',[('a_c',z),('d_f',s)])
 
 
 def fig11(ctx,e):
@@ -327,7 +327,7 @@ def fig12(ctx,e):
     valid=u[(u.E0>0)&(u.E1>0)];ax[2].scatter(valid.within,valid.composition,s=2,alpha=.3,color=TEAL,rasterized=True);ax[2].axhline(0,color=GRAY,lw=.5);ax[2].axvline(0,color=GRAY,lw=.5);ax[2].set(xlabel='Within contribution',ylabel='Composition contribution')
     values=np.sort(np.abs(u.total.to_numpy()))[::-1];shares=np.cumsum(values)/values.sum() if values.sum()>0 else np.zeros_like(values)
     ax[3].plot(np.arange(1,len(values)+1)/max(1,len(values)),shares,color=NAVY);ax[3].set(xlabel='Fraction of units, largest absolute first',ylabel='Cumulative absolute contribution',xlim=(0,1),ylim=(0,1))
-    e.save(fig,12,'Composition_details','Country and field contributions to the change in joint co-use','a, Every field contribution, with components separated around zero and net totals marked by crosses. b, Up to 20 countries with the largest absolute net contributions; all countries remain in the full table. c, Common-unit within and composition terms. d, Concentration of absolute unit contributions. Components sum exactly to the global mean difference for the configured baseline and comparison windows. Within broad country-field units still includes finer compositional change; this is accounting, not causal attribution.',[('a',f),('b',c),('c_d',u)])
+    e.save(fig,12,'Composition_details','Country and field contributions to the change in joint co-use','a, Every field contribution, with components separated around zero and net totals marked by crosses. b, Up to 20 countries with the largest absolute net contributions; all countries remain in the full table. c, Common-unit within and composition terms. d, Concentration of absolute unit contributions. Components sum exactly to the global mean difference for the configured baseline and comparison windows. Components describe accounting within the configured country-field units.',[('a',f),('b',c),('c_d',u)])
 
 
 def fig13(ctx,e):
@@ -343,7 +343,7 @@ def fig13(ctx,e):
         ax[3].plot(np.arange(7),t.intensity,'o-',ms=2,color=PALETTE[k%7])
     for plot,ylabel in [(ax[2],'Fraction of reference exposure'),(ax[3],'Bridge credit / exposure')]:plot.set_xticks(np.arange(7),bands,rotation=45);plot.set(xlabel='Exact source age band (years)',ylabel=ylabel,ylim=(0,1))
     key(ax[2],ncol=2,fontsize=5.2)
-    e.save(fig,13,'Source_history','Reference history, source ages and bridge intensity','a, Source-cohort bridge intensity. b, Cohort share of paper-normalised reference exposure. c-d, Exposure share and intensity by exact reference age band for each citing period. Age is computed from original citing and cited years before aggregation; no twenty-year truncation is introduced. Pre-1950 sources are pooled only for display. Masked cohort cells have insufficient exposure; rates are ratios of summed credits and exposures.',[('a_b',z),('c_d',a)])
+    e.save(fig,13,'Source_history','Reference history, source ages and bridge intensity','a, Source-cohort bridge intensity. b, Cohort share of paper-normalised reference exposure. c-d, Exposure share and intensity by exact reference age band for each citing period. Age is computed from citing and cited years before aggregation, retaining all observed reference ages. Pre-1950 sources are pooled only for display. Masked cohort cells have insufficient exposure; rates are ratios of summed credits and exposures.',[('a_b',z),('c_d',a)])
 
 
 def fig14(ctx,e):
@@ -358,7 +358,7 @@ def fig14(ctx,e):
         h=a.hexbin(z[x],z[y],gridsize=30,mincnt=1,bins='log',cmap='YlGnBu',linewidths=0)
         cb=fig.colorbar(h,ax=a,fraction=.035,pad=.025);cb.set_label('Papers',fontsize=5.5)
         a.set(xlabel='Joint co-use',ylabel='Semantic distance\n'+label,xlim=(0,1));sources.append((chr(97+k),z[[v for v in ['paper_id','year',x,y,'n_joint_embedding_refs','joint_ref_coverage','semantic_coverage'] if v in z]]))
-    e.save(fig,14,'Semantic_scope','Semantic associations under explicitly separated reference scopes','Panels show only available measurements; scope is stated on each vertical axis. The exact same-reference check is included only when its source table contains valid measured data. The broader existing semantic metric is a separate descriptive association and cannot validate same-reference integration. Hexagon colour gives paper counts on a logarithmic scale. Sample sizes and unweighted Spearman correlations for each scope are exported; no new embeddings, uncertainty intervals or causal interpretation are introduced.',sources+[('summary',summary)])
+    e.save(fig,14,'Semantic_scope','Semantic associations under explicitly separated reference scopes','Each vertical axis identifies the reference scope of its measured semantic indicator. Same-reference and broader-reference associations occupy separate panels. Hexagon colour gives paper counts on a logarithmic scale. Sample sizes and unweighted Spearman correlations are exported for each scope.',sources+[('summary',summary)])
 
 
 def fig15(ctx,e):
@@ -370,12 +370,12 @@ def fig15(ctx,e):
         a=fig.add_subplot(grid[k//2,:] if len(models)%2 and k==len(models)-1 else grid[k//2,k%2]);axes.append(a);a.set_title(chr(97+k),loc='left',fontweight='bold',fontsize=7,pad=2)
         t=z[z.model==model];y=np.arange(len(t));a.errorbar(t.estimate,y,xerr=np.vstack([t.estimate-t.conf_low,t.conf_high-t.estimate]),fmt='o',ms=2.5,color=TEAL,lw=.8,capsize=1.5)
         a.set_yticks(y,[names.get(x,x) for x in t.term]);a.invert_yaxis();a.axvline(0,color=GRAY,lw=.5,ls='--');a.set(xlabel='Coefficient with reported 95% CI',ylabel=model.replace('paper_','').replace('_',' '))
-    e.save(fig,15,'Reported_regressions','Reported regression coefficients and model-specific uncertainty','Each panel represents one original model, identified on the vertical axis. Points are reported coefficients and bars the original 95% confidence intervals. Paper and country-field models differ in units, weighting, fixed effects and covariance estimators; coefficients are not pooled. Models are not re-estimated. Exact sample counts, complete-case definitions and covariance choices are exported. AI results apply only to the classified subset; numerical p-values of zero in imported tables reflect underflow.',[('all_models',z)])
+    e.save(fig,15,'Reported_regressions','Reported regression coefficients and model-specific uncertainty','Each panel represents one stored model, identified on the vertical axis. Points are reported coefficients and bars are the corresponding 95% confidence intervals. Paper and country-field models retain their own units, weighting, fixed effects and covariance estimators. Exact sample counts, complete-case definitions and covariance choices are exported. AI results describe the classified subset.',[('all_models',z)])
 
 
 def fig16(ctx,e):
-    labels=ctx.table('S33_full_label_audit');coverage=ctx.table('S34_full_coverage_audit')
-    try:types=ctx.table('S35_source_type_audit')
+    labels=ctx.table('S33_full_label_diagnostics');coverage=ctx.table('S34_full_coverage_diagnostics')
+    try:types=ctx.table('S35_source_type_diagnostics')
     except MissingInput:types=pd.DataFrame()
     fig,ax=new(3 if len(types) else 2,2,178 if len(types) else 150)
     for a,metric in zip(ax[:2],['known_fields','known_countries']):
@@ -389,7 +389,7 @@ def fig16(ctx,e):
         for k,(kind,z) in enumerate(types.groupby('kind_label')):
             ax[4].plot(z.year,z.share,label=kind,color=PALETTE[k]);ax[5].plot(z.year,z.mean_q,label=kind,color=PALETTE[k])
         ax[4].set(xlabel='Citing year',ylabel='Full-P* source-type share',ylim=(0,1));ax[5].set(xlabel='Citing year',ylabel='Full-P* mean q by source type');key(ax[4])
-    e.save(fig,16,'Full_audit','Optional streaming audit of existing full-paper outputs','a-b, Fields and country membership counts for all dated core papers, including papers outside P*; counts of five or more are pooled for display, with full counts in the table. c-d, Reference-classification coverage and mean co-use within P*. If available, e-f show source-type shares and means. This audit streams the existing assembly table without reconstructing references. Source kinds require exact cached paper-ID checks. Coverage remains conditional on the observed core graph.',[('a_b',labels),('c_d',coverage)]+([('e_f',types)] if len(types) else []))
+    e.save(fig,16,'Full_population_diagnostics','Optional streaming population diagnostics','a-b, Fields and country membership counts for all dated core papers, including papers outside P*; counts of five or more are pooled for display, with full counts in the table. c-d, Reference-classification coverage and mean co-use within P*. The optional e-f panels show source-type shares and means. Population diagnostics stream the existing assembly table. Source kinds use exact cached paper-ID alignment; reference coverage describes the observed core graph.',[('a_b',labels),('c_d',coverage)]+([('e_f',types)] if len(types) else []))
 
 
 FIGURES=[fig01,fig02,fig03,fig04,fig05,fig06,fig07,fig08,fig09,fig10,fig11,fig12,fig13,fig14,fig15,fig16]
