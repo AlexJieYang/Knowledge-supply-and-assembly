@@ -32,7 +32,7 @@ The default sample is the deterministic uniform bottom-k sample from stage 05. `
 
 ## Analytical figure sequence
 
-Workflow identifiers below differ from the revised article's presentation order.
+Workflow identifiers below differ from the article's presentation order.
 
 | Workflow figure | Contents | Main inputs |
 | --- | --- | --- |
@@ -53,7 +53,7 @@ Workflow identifiers below differ from the revised article's presentation order.
 | S15 | R coefficients and confidence intervals | R estimates and model scope |
 | S16 | Optional full-population coverage diagnostics | `assembly_papers`, aligned caches |
 
-`publication_redraw.py` separately reproduces the revised four-model coefficient display as **Supplementary Figure 7**, using the included `publication_tables/Regression_Coefficients.csv`.
+`publication_redraw.py` separately reproduces the four-model coefficient display as **Supplementary Figure 7**, using the included `publication_tables/Regression_Coefficients.csv`.
 
 ## Optional full-population diagnostics
 

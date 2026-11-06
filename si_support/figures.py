@@ -1,4 +1,4 @@
-"""Numbered SI figures, exact plotted data, legends and a vector review PDF."""
+"""Numbered SI figures, exact plotted data, legends and a vector PDF."""
 import textwrap
 import numpy as np
 import pandas as pd

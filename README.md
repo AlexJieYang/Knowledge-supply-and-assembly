@@ -10,7 +10,7 @@ The repository contains the Python and R pipeline, clean Jupyter notebooks, plot
 
 | Workflow | Inputs | Entry point |
 | --- | --- | --- |
-| Redraw the two revised publication figures | Included `publication_tables/` | `python publication_redraw.py` |
+| Redraw the two publication figures | Included `publication_tables/` | `python publication_redraw.py` |
 | Recompute the complete analysis | External bibliographic Parquet files | `python run_python.py` |
 
 The first workflow redraws main Figure 1 and Supplementary Figure 7 from existing numerical results. It retains the four reported model specifications and their original coefficients and confidence intervals. It does not re-estimate the models.
@@ -167,7 +167,7 @@ python run_si.py --stage tables
 python run_si.py --stage figures
 ```
 
-See [SI_README.md](SI_README.md) for inputs, optional diagnostics, figure numbering and output definitions. Internal SI figure numbers follow the analytical workflow; the revised article uses a different presentation order, including workflow S15 as Supplementary Figure 7.
+See [SI_README.md](SI_README.md) for inputs, optional diagnostics, figure numbering and output definitions. Internal SI figure numbers follow the analytical workflow; the article uses a different presentation order, including workflow S15 as Supplementary Figure 7.
 
 ## Output structure
 
@@ -207,9 +207,17 @@ The path-resolution checks use only Python's standard library. The full test sui
 - `si_support/`: supplementary analyses and plotting.
 - `tests/`, `si_tests/`: numerical, I/O and synthetic pipeline tests.
 - `R/`: model estimation.
-- `publication_tables/`: aggregate data for the two revised publication figures.
+- `publication_tables/`: aggregate data for the two publication figures.
 - `assets/`: map geometry and its source notice.
 
 ## Citation and licensing
 
-When citing the accompanying study, use its final published bibliographic record when available. This release does not specify a license for the research code. The bundled map data retain their separate source and public-domain notice in [assets/MAP_LICENSE.txt](assets/MAP_LICENSE.txt).
+When citing the accompanying study, use its final published bibliographic record when available. The research code is available under the [MIT License](LICENSE). External bibliographic data and derived inputs retain their source licenses and access conditions. The bundled map data retain their separate source and public-domain notice in [assets/MAP_LICENSE.txt](assets/MAP_LICENSE.txt).
+
+## Static source checks
+
+```bash
+python tools/check_sources.py
+```
+
+GitHub Actions runs the same Python syntax, JSON and notebook structure checks. It also requires notebooks to have no saved execution output or execution metadata. These checks do not import the research modules or execute notebooks, models, scientific tests or synthetic examples. R cells are checked as notebook source text; R syntax is not validated by this workflow.

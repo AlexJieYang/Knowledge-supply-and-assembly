@@ -1,4 +1,4 @@
-"""Build SI tables, detailed figures, Source Data and a combined review PDF."""
+"""Build SI tables, detailed figures, Source Data and a combined PDF."""
 from pathlib import Path
 import argparse
 import os
