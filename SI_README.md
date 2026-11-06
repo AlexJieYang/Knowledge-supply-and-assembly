@@ -26,9 +26,9 @@ Figure-only reuse checks the previous table definitions and input signatures. Re
 
 ## Inputs
 
-The required mapping tables are `results/tables/countries.csv` and `fields.csv`. Individual sections read relevant main summary tables, `results/data/plot_sample.parquet`, `results/cache/window_networks.npz` and, when available, `results/r/coefficients.csv` and `model_scope.csv`.
+The workflow reads the mapping tables `results/tables/countries.csv` and `fields.csv`. Individual sections read relevant main summary tables, `results/data/plot_sample.parquet`, `results/cache/window_networks.npz` and, when available, `results/r/coefficients.csv` and `model_scope.csv`.
 
-The default sample is the deterministic uniform bottom-k sample from stage 05. `--sample-file` accepts an alternative CSV or Parquet file, whose inclusion design is labelled separately. Missing optional inputs are listed in the run-status file.
+The default sample is the deterministic uniform bottom-k sample from stage 05. `--sample-file` accepts an alternative CSV or Parquet file, whose inclusion design is labelled separately.
 
 ## Analytical figure sequence
 
@@ -55,14 +55,6 @@ Workflow identifiers below differ from the article's presentation order.
 
 `publication_redraw.py` separately reproduces the four-model coefficient display as **Supplementary Figure 7**, using the included `publication_tables/Regression_Coefficients.csv`.
 
-## Optional full-population diagnostics
-
-```bash
-python run_si.py --deep-audit --batch-rows 250000
-```
-
-This option streams the existing `assembly_papers.parquet`. Source-type diagnostics additionally require `kind.npy` and `paper_id.npy`, with exact identifier alignment. The notebook leaves this option disabled by default.
-
 ## Outputs
 
 | Output | Contents |
@@ -76,7 +68,7 @@ This option streams the existing `assembly_papers.parquet`. Source-type diagnost
 | `SI_run_status.csv` | Completed and skipped sections. |
 | `SI_table_inventory.csv` | Table definitions and row counts. |
 
-Output counts depend on available inputs. Undefined measurements remain missing and optional panels require their stated inputs.
+The manifest records the generated tables, figures and plotting sources.
 
 ## Measurement conventions
 
@@ -94,7 +86,6 @@ See [STUDY_DESIGN.md](STUDY_DESIGN.md) for equations and [README.md](README.md) 
 ```bash
 python -m pytest si_tests -q
 python demo_si.py
-python demo_si.py --audit-demo
 ```
 
 Examples use synthetic inputs and labelled outputs in a separate directory, without reading the full empirical corpus.

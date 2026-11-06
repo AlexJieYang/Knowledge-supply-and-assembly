@@ -1,21 +1,5 @@
-# External research inputs
+# Data directory
 
-The default `config.json` reads bibliographic inputs from this directory. Large input files are excluded from version control.
+`research_dir` selects the directory used for research tables. The default is this `data/` directory. Table paths are configured in `config.json`.
 
-Required relative locations:
-
-```text
-core/papers.parquet
-extended/country_members.parquet
-stage/fields/data.parquet
-stage/edges/data.parquet
-```
-
-Optional relative locations:
-
-```text
-metrics/embedding_paper.parquet
-extended/AI_papers.parquet
-```
-
-See the input-schema table in the repository [README](../README.md). Source files are read-only. Analysis outputs are written outside this directory, to `results/` by default.
+See [the table schema](../docs/DATA_SCHEMA.md) for data types and column conventions. Source files are read-only. Analysis outputs are written to the configured output directory, `results/` by default.

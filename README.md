@@ -4,14 +4,14 @@ Research code for **Knowledge supply and assembly in the global division of scie
 
 The project measures how publications combine knowledge across institutional countries and broad scientific fields. It allocates the same contextual reference credit to cited sources and to the papers assembling those sources, then compares role profiles, national networks, community boundaries, concentration and temporal change.
 
-The repository contains the Python and R pipeline, clean Jupyter notebooks, plotting assets, tests and a small set of aggregated publication tables. The full bibliographic corpus, citation graph, embeddings and computed caches are not included.
+The repository contains the Python and R pipeline, clean Jupyter notebooks, plotting assets, tests and a small set of aggregated publication tables.
 
 ## Two ways to use this repository
 
 | Workflow | Inputs | Entry point |
 | --- | --- | --- |
 | Redraw the two publication figures | Included `publication_tables/` | `python publication_redraw.py` |
-| Recompute the complete analysis | External bibliographic Parquet files | `python run_python.py` |
+| Recompute the complete analysis | Configured research directory | `python run_python.py` |
 
 The first workflow redraws main Figure 1 and Supplementary Figure 7 from existing numerical results. It retains the four reported model specifications and their original coefficients and confidence intervals. It does not re-estimate the models.
 
@@ -79,16 +79,7 @@ The default configuration uses repository-relative directories:
 
 These are two entries from `config.json`, rather than a replacement for the full configuration. Relative input and output roots are resolved against the directory containing the configuration file. Input files remain read-only; the output directory must be outside the input root.
 
-Place the required inputs under `data/` using the layout below, or edit `research_dir` and `paths` in your own configuration. A private `config.local.json` is excluded from Git by default.
-
-| Input key | Default location within `research_dir` | Expected columns |
-| --- | --- | --- |
-| `papers` | `core/papers.parquet` | Required: `paper_id`, `year`, `primary_field_id`. Recommended: `source_id`, `team_size`, `is_conference`. |
-| `countries` | `extended/country_members.parquet` | `paper_id`, `entity_id`, `weight`; country entities use ISO-style codes. |
-| `fields` | `stage/fields/data.parquet` | Long-form `paper_id`, `field_id`; optional `level` and `weight`. Configurable aliases are supported. |
-| `edges` | `stage/edges/data.parquet` | `citing_id`, `cited_id`. |
-| `semantic` | `metrics/embedding_paper.parquet` | Optional: `paper_id`, `emb_ref_pair_mean_distance`, `emb_ref_coverage`. |
-| `ai` | `extended/AI_papers.parquet` | Optional: `paper_id`, `AIProb`. |
+Set `research_dir` and `paths` in your configuration. A private `config.local.json` is excluded from Git by default. Table schemas and column conventions are documented in [docs/DATA_SCHEMA.md](docs/DATA_SCHEMA.md).
 
 Country weights must sum to one within each classified publication, apart from small rounding differences. Field settings support multiple distinct labels at a specified level; the empirical classification used in the article contains one broad field label per classified record. The preset 19 field identifiers refer to broad Fields, rather than OpenAlex Topics.
 
@@ -199,7 +190,7 @@ python run_demo.py --n 6000 --figures --joint-semantic
 python demo_si.py
 ```
 
-The path-resolution checks use only Python's standard library. The full test suite uses the installed project dependencies. Synthetic examples use separate directories and labelled synthetic outputs. They exercise the implementation and do not reproduce the empirical findings. Full empirical reruns require the external inputs listed above; R model estimation additionally requires the R environment.
+The path-resolution checks use only Python's standard library. The full test suite uses the installed project dependencies. Synthetic examples use separate directories and labelled synthetic outputs. They exercise the implementation and do not reproduce the empirical findings. R model estimation uses the configured R environment.
 
 ## Repository contents
 
@@ -220,4 +211,4 @@ When citing the accompanying study, use its final published bibliographic record
 python tools/check_sources.py
 ```
 
-GitHub Actions runs the same Python syntax, JSON and notebook structure checks. It also requires notebooks to have no saved execution output or execution metadata. These checks do not import the research modules or execute notebooks, models, scientific tests or synthetic examples. R cells are checked as notebook source text; R syntax is not validated by this workflow.
+GitHub Actions runs the same Python syntax, JSON and notebook structure checks. It also requires notebooks to have no saved execution output or execution metadata. R cells are checked as notebook source text.
