@@ -212,3 +212,7 @@ python tools/check_sources.py
 ```
 
 GitHub Actions checks Python syntax, JSON and notebook structure, and parses R scripts and R notebook cells with R 4.4. Notebooks contain no saved execution output or execution metadata. Source checks parse code without evaluating analysis stages.
+
+## Author homepage
+
+[Jie Yang's official personal homepage at Nanjing University](https://im.nju.edu.cn/info/1103/53391.htm).
